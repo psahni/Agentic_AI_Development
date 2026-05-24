@@ -71,6 +71,15 @@ ipython_config.py
 sales_agent/reports/
 research-agent/*.md
 !research-agent/README.md
+cfo_agent/reports/
+cfo_agent/data/financials.csv
+
+# ============================================================
+# CFO Agent — SQLite Memory
+# ============================================================
+cfo_agent/memory.db
+cfo_agent/memory.db-shm
+cfo_agent/memory.db-wal
 
 # ============================================================
 # OS
