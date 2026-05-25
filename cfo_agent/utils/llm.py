@@ -21,19 +21,26 @@
 import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
+from pydantic import SecretStr
 
 load_dotenv()
+
+_raw_key = os.getenv("GROQ_API_KEY") or ""
+if not _raw_key:
+    raise EnvironmentError("GROQ_API_KEY is not set. Add it to your .env file.")
+
+_api_key = SecretStr(_raw_key)
 
 # Brain of the supervisor — smart, slower, more expensive
 supervisor_llm = ChatGroq(
     model       = "llama-3.3-70b-versatile",
     temperature = 0,      # zero = fully deterministic routing
-    api_key     = os.getenv("GROQ_API_KEY")
+    api_key     = _api_key
 )
 
 # Brain of workers — fast, cheap, focused
 worker_llm = ChatGroq(
     model       = "llama-3.1-8b-instant",
     temperature = 0.1,    # slight variation for natural writing
-    api_key     = os.getenv("GROQ_API_KEY")
+    api_key     = _api_key
 )
