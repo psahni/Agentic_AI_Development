@@ -82,6 +82,13 @@ cfo_agent/memory.db-shm
 cfo_agent/memory.db-wal
 
 # ============================================================
+# Document Intelligence Agent
+# ============================================================
+document_intelligent_agent/chroma_db/
+document_intelligent_agent/docs/
+!document_intelligent_agent/docs/.gitkeep
+
+# ============================================================
 # OS
 # ============================================================
 .DS_Store

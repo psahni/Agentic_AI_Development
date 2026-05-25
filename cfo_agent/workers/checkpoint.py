@@ -1,29 +1,25 @@
 # workers/checkpoint.py
 #
-# This is where the agent PAUSES and asks a human
-# to review findings before the report is written.
+# This worker implements human-in-the-loop using a
+# blocking input() call directly inside the node.
 #
-# WHY human-in-the-loop here specifically?
-# The Writer uses the anomalies and metrics to generate
-# a boardroom-ready CFO report. If the anomaly list
-# contains incorrect findings, the report will too.
-# A human review at this point catches errors BEFORE
-# they end up in an executive document.
+# HOW IT ACTUALLY WORKS:
+# When the supervisor routes here, LangGraph runs this
+# function like any other node. The input() call blocks
+# the entire process — nothing moves forward until the
+# human types yes or no in the terminal.
 #
-# HOW IT WORKS IN LANGGRAPH:
-# In main.py, when we compile the graph, we pass
-# interrupt_before=["checkpoint"] to the checkpointer.
-# This tells LangGraph: before running this node,
-# PAUSE the entire graph and save state to SQLite.
-# The program exits. When you run it again with the
-# same thread_id, LangGraph resumes from this exact
-# point — with the human's input included.
+# This is the right approach for a CLI tool because:
+# - Simple, no extra LangGraph configuration needed
+# - The process stays alive while waiting for input
+# - SQLite still checkpoints state before this node runs
 #
-# This is different from a simple input() call because:
-# - State is fully saved to disk during the pause
-# - The agent can be paused for hours or days
-# - Multiple humans can review on different machines
-# - The graph resumes exactly where it stopped
+# When would you use interrupt_before instead?
+# In a web application where you cannot block a process.
+# For example: a user submits a form hours later to approve.
+# The process exits, state is saved to SQLite, and the
+# graph resumes when the web endpoint is called again.
+# For a terminal tool like this one, input() is cleaner.
 
 from state import CFOState
 

@@ -57,3 +57,23 @@ def loader_worker(state: CFOState) -> dict:
             "status":        "error",
             "error_message": "financials.csv not found in data/ folder"
         }
+    
+#
+# A node only needs to return the fields it changed. LangGraph preserves everything else exactly as it was.
+#
+# # Your loader_worker returns this — just a plain dict
+# return {
+#     "raw_data": df.to_json(),
+#     "status":   "ok"
+# }
+
+# # What LangGraph does AFTER this returns (invisible to you):
+# # 1. Takes the current full state from memory.db
+# # 2. Merges {"raw_data": ..., "status": "ok"} into it
+# # 3. Writes the updated full state back to memory.db
+# # 4. Routes to supervisor
+
+
+#
+# Your nodes are simple, focused functions. They receive state, do one job, return a small dict. LangGraph quietly handles the merge, the persistence, and the routing after every single return — completely invisible to your code. 
+#
