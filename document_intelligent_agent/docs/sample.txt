@@ -1,0 +1,31 @@
+ACME Corporation — Annual Financial Report 2024
+
+Executive Summary
+ACME Corporation delivered strong results in 2024 with total revenue of 12.4 million dollars,
+representing 23 percent growth over the previous year. Net profit reached 2.1 million dollars
+with a net margin of 16.9 percent. The company expanded into three new markets: Singapore,
+Dubai, and Toronto.
+
+Business Segments
+The Software division contributed 7.2 million dollars, up 31 percent year on year.
+The Services division contributed 5.2 million dollars, up 12 percent year on year.
+Software is now 58 percent of total revenue, up from 54 percent in 2023.
+
+Risk Factors
+The company faces three primary risks in 2025.
+First, increased competition in the Singapore market from two new entrants.
+Second, rising cloud infrastructure costs projected to increase by 18 percent.
+Third, key person dependency in the engineering leadership team.
+
+Strategic Priorities for 2025
+Leadership has identified four priorities for the coming year.
+One: expand the Singapore office from 8 to 25 employees.
+Two: launch the enterprise tier product by Q2.
+Three: reduce cloud costs through infrastructure optimisation.
+Four: hire a deputy CTO to address leadership concentration risk.
+
+Headcount
+Total employees at end of 2024: 142.
+Engineering: 67. Sales: 31. Operations: 28. Management: 16.
+Attrition rate in 2024 was 11 percent, below industry average of 18 percent.
+
