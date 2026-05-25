@@ -24,6 +24,37 @@ Your question   →  [Retriever]  →  Find relevant chunks
 
 ---
 
+## Agent Graph
+
+The LangGraph agent runs three nodes in sequence for every question.
+
+```mermaid
+flowchart TD
+    START(["▶  START"]):::terminal
+    retrieve["🔍  retrieve_node\n―――――――――――――――\nSearches ChromaDB\nfor relevant chunks"]
+    answer["💬  answer_node\n―――――――――――――――\nBuilds grounded prompt\nCalls Groq LLM\nReturns cited answer"]
+    grade["✅  grade_node\n―――――――――――――――\nSecond LLM call\nVerifies answer stays\nwithin document bounds"]
+    END(["⏹  END"]):::terminal
+
+    START --> retrieve
+    retrieve --> answer
+    answer --> grade
+    grade --> END
+
+    classDef terminal fill:#1e1e2e,color:#cdd6f4,stroke:#89b4fa,stroke-width:2px,rx:20
+    classDef node fill:#313244,color:#cdd6f4,stroke:#89dceb,stroke-width:1.5px
+
+    class retrieve,answer,grade node
+```
+
+| Node | File | What it does |
+|------|------|--------------|
+| `retrieve_node` | `core/agent.py` | Embeds the question, queries ChromaDB, returns top-k chunks |
+| `answer_node` | `core/agent.py` | Injects chunks into a strict prompt, calls Groq, returns a cited answer |
+| `grade_node` | `core/agent.py` | Runs a second LLM call to verify the answer is grounded in the retrieved chunks |
+
+---
+
 ## Project Structure
 
 ```
