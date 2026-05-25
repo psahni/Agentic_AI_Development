@@ -1,0 +1,29 @@
+# Document Intelligence Agent — Dependencies
+
+# PDF parsing
+pdfplumber==0.11.4
+
+# Embeddings (local, no API key)
+sentence-transformers==3.3.1
+
+# Vector store
+chromadb==0.5.23
+
+# LLM — Groq
+groq==0.13.1
+
+# API server
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.18
+
+# CLI
+rich==13.9.4
+typer==0.15.1
+
+# Text splitting
+langchain-text-splitters==1.1.2
+
+# Utilities
+python-dotenv==1.0.1
+pydantic==2.10.4
