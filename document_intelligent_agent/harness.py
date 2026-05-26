@@ -93,3 +93,79 @@ def validate_input(question: str) -> str:
             )
 
     return cleaned
+
+
+# ============================================================
+# COMPONENT 2 — OUTPUT VALIDATOR
+# ============================================================
+
+MIN_ANSWER_LENGTH = 10    # characters
+
+# Phrases that indicate the agent correctly admitted
+# it could not find information. These are VALID responses
+# even though they are short — do not flag them.
+NOT_FOUND_PHRASES = [
+    "not available in the provided",
+    "not found in the",
+    "cannot find",
+    "no information",
+    "not in the documents",
+]
+
+
+class OutputValidationError(Exception):
+    # Raised when an answer fails validation.
+    # The harness catches this and triggers a retry
+    # or returns a safe fallback message.
+    pass
+
+
+def validate_output(answer: str, grounded: bool) -> dict:
+    # Validates the agent's answer before returning to user.
+    # Returns a dict with the answer and a warning flag.
+    #
+    # WHY return a dict instead of raising an exception?
+    # Unlike input failures (which should always be blocked),
+    # output issues are nuanced. A short answer might be
+    # correct ("Yes." is a valid answer to a yes/no question).
+    # An ungrounded answer might still be useful with a warning.
+    # We return the answer WITH a warning flag rather than
+    # blocking it entirely — the caller decides what to do.
+
+    result = {
+        "answer":   answer,
+        "warning":  None,
+        "valid":    True
+    }
+
+    # Check for empty answer
+    if not answer or not answer.strip():
+        result["valid"]   = False
+        result["warning"] = "Agent returned an empty response."
+        result["answer"]  = (
+            "I was unable to generate a response. "
+            "Please try rephrasing your question."
+        )
+        return result
+
+    # Check for suspiciously short answer
+    # (but allow known not-found phrases which can be short)
+    lower = answer.lower()
+    is_not_found = any(phrase in lower for phrase in NOT_FOUND_PHRASES)
+
+    if len(answer.strip()) < MIN_ANSWER_LENGTH and not is_not_found:
+        result["warning"] = (
+            f"Answer is unusually short ({len(answer.strip())} characters). "
+            "Response may be incomplete."
+        )
+
+    # Check grounding signal from grade node
+    # If graded as not grounded AND it is not a valid
+    # not-found response, attach a reliability warning.
+    if not grounded and not is_not_found:
+        result["warning"] = (
+            "This answer may contain information not found "
+            "in the provided documents. Verify before relying on it."
+        )
+
+    return result
