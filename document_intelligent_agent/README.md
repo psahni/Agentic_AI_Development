@@ -216,6 +216,12 @@ curl -X POST http://localhost:8000/ask \
   -d '{"question": "What was the revenue in Q3?"}'
 ```
 
+```bash
+ curl -X POST http://localhost:8000/ask   -H "Content-Type: application/json"   -d "{\"question\": \"What is the revenue growth of ACME?\"}"
+ 
+{"question":"What is the revenue growth of ACME?","answer":"23 percent\n\nThis revenue growth is mentioned in the context as \"23 percent growth over the previous year\" in the Executive Summary of the ACME Corporation's Annual Financial Report 2024.\n\nSOURCES:\n- Executive Summary (Passage 1)","grounded":true,"sources":1}
+```
+
 ```json
 {
   "question": "What was the revenue in Q3?",

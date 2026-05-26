@@ -57,6 +57,7 @@ class RAGState(TypedDict):
     question:        str          # the user's question
     chunks:          list         # retrieved document chunks
     context:         str          # formatted chunks for LLM
+    engineered_context: str
     answer:          str          # LLM generated answer
     grounded:        bool         # did answer pass grounding check?
     collection_name: str          # which ChromaDB collection to search
@@ -82,6 +83,144 @@ def retrieve_node(state: RAGState) -> dict:
         "context": context
     }
 
+
+# ───────────────────────────────────────────────────
+
+def context_engineer_node(state: RAGState) -> dict:
+    # PURPOSE:
+    # Transforms raw retrieved chunks into an optimised
+    # context before the LLM sees it.
+    #
+    # This is where we make deliberate decisions about
+    # what goes into the context window, in what order,
+    # and how it is formatted.
+    #
+    # Raw retrieval = giving the LLM a pile of papers
+    # Context engineering = giving the LLM a prepared brief
+
+    print("\n[Context Engineer] Optimising context...")
+
+    chunks = state["chunks"]
+
+    if not chunks:
+        return {"engineered_context": "No relevant content found."}
+
+    # ── Job 1: Rank by relevance score ───────────────────────
+    # Sort descending — highest relevance first.
+    # LLMs attend more strongly to early context.
+    # Most important evidence goes at the top.
+    ranked = sorted(chunks, key=lambda x: x["score"], reverse=True)
+
+    print(f"   Ranked {len(ranked)} chunks by relevance")
+    for i, c in enumerate(ranked, 1):
+        print(f"   {i}. score {c['score']:.3f} — "
+              f"{c['content'][:60].replace(chr(10),' ')}...")
+
+    # ── Job 2: Compress low-relevance chunks ─────────────────
+    # Chunks above 0.5 → keep full text (high signal)
+    # Chunks below 0.5 → summarise to one sentence (low signal)
+    #
+    # WHY 0.5 as the threshold?
+    # In practice, scores above 0.5 consistently contain
+    # direct answers. Scores below 0.5 are contextually
+    # related but often not directly useful. Compressing
+    # them preserves the signal without the token cost.
+
+    HIGH_THRESHOLD = 0.5
+    context_sections = []
+
+    for i, chunk in enumerate(ranked, 1):
+        if chunk["score"] >= HIGH_THRESHOLD:
+            # Full text — high confidence it is relevant
+            section = (
+                f"[Passage {i} — relevance {chunk['score']:.2f}]\n"
+                f"{chunk['content']}"
+            )
+            print(f"   Passage {i}: kept full ({len(chunk['content'])} chars)")
+
+        else:
+            # Compress to one sentence — low confidence
+            # Ask LLM to extract the single most useful fact
+            compress_prompt = (
+                f"Extract the single most relevant fact from this passage "
+                f"in one sentence of maximum 20 words:\n\n{chunk['content']}"
+            )
+            compressed = llm.invoke([
+                SystemMessage(content="Extract one key fact. One sentence only."),
+                HumanMessage(content=compress_prompt)
+            ])
+            compressed_text = str(compressed.content).strip()
+            section = (
+                f"[Passage {i} — relevance {chunk['score']:.2f} — summarised]\n"
+                f"{compressed_text}"
+            )
+            print(f"   Passage {i}: compressed to → {compressed_text[:60]}...")
+
+        context_sections.append(section)
+
+    # ── Job 3: Query-aware system prompt assembly ─────────────
+    # Analyse the question type and build matching instructions.
+    # A numerical question needs a different answer format
+    # than a list question or a risk question.
+    #
+    # This replaces the generic "you are a document analyst"
+    # with instructions that match the specific query intent.
+
+    question = state["question"].lower()
+
+    if any(w in question for w in ["how many", "how much", "what is the", "total", "number"]):
+        answer_instruction = (
+            "The question asks for a specific number or quantity. "
+            "Lead with the number directly. Then explain the context."
+        )
+    elif any(w in question for w in ["list", "what are", "risks", "factors", "priorities"]):
+        answer_instruction = (
+            "The question asks for multiple items. "
+            "Present as a numbered list. Be concise per item."
+        )
+    elif any(w in question for w in ["why", "how does", "explain"]):
+        answer_instruction = (
+            "The question asks for an explanation. "
+            "Give a clear, logical explanation in 2-3 sentences."
+        )
+    else:
+        answer_instruction = (
+            "Answer clearly and concisely. "
+            "Reference specific passages to support your answer."
+        )
+
+    # ── Job 4: Token budget tracking ─────────────────────────
+    # Rough estimate: 1 token ≈ 4 characters.
+    # llama-3.1-8b context window: 8192 tokens.
+    # We aim to stay under 6000 tokens for the full prompt
+    # (leaving room for the answer itself).
+
+    full_context = "\n\n---\n\n".join(context_sections)
+    estimated_tokens = len(full_context) // 4
+    TOKEN_WARNING = 5000
+
+    print(f"   Estimated context tokens: ~{estimated_tokens}")
+
+    if estimated_tokens > TOKEN_WARNING:
+        print(f"   ⚠️  Context approaching token limit — trimming")
+        # Keep only the top 2 chunks if over budget
+        full_context = "\n\n---\n\n".join(context_sections[:2])
+        estimated_tokens = len(full_context) // 4
+        print(f"   Trimmed to ~{estimated_tokens} tokens")
+
+    # ── Assemble the final engineered context ─────────────────
+    # This is the complete, optimised package that Answer node
+    # will use. Everything above was preparation for this.
+
+    engineered_context = (
+        f"ANSWER INSTRUCTION:\n{answer_instruction}\n\n"
+        f"DOCUMENT PASSAGES ({len(ranked)} retrieved, "
+        f"~{estimated_tokens} tokens):\n\n"
+        f"{full_context}"
+    )
+
+    print(f"   Context engineered successfully")
+    return {"engineered_context": engineered_context}
 
 # ── Node 2: Answer ────────────────────────────────────────
 
@@ -118,7 +257,8 @@ STRICT RULES:
 5. Be specific — include numbers, names, and dates from the context"""
 
     user_prompt = f"""DOCUMENT CONTEXT:
-{state["context"]}
+        {state["engineered_context"] if state["engineered_context"] else state["context"]}
+
 
 ---
 
@@ -212,13 +352,15 @@ def build_rag_graph():
     graph = StateGraph(RAGState)
 
     graph.add_node("retrieve", retrieve_node)
+    graph.add_node("context_engineer",  context_engineer_node)
     graph.add_node("answer",   answer_node)
     graph.add_node("grade",    grade_node)
 
     # Simple sequential flow —
     # retrieve → answer → grade → done
     graph.add_edge(START,      "retrieve")
-    graph.add_edge("retrieve", "answer")
+    graph.add_edge("retrieve", "context_engineer")
+    graph.add_edge("context_engineer", "answer")
     graph.add_edge("answer",   "grade")
     graph.add_edge("grade",    END)
 
@@ -242,6 +384,7 @@ def ask(question: str, collection_name: str = "documents") -> dict:
         question        = question,
         chunks          = [],
         context         = "",
+        engineered_context = "",
         answer          = "",
         grounded        = False,
         collection_name = collection_name
