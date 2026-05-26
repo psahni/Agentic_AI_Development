@@ -165,7 +165,7 @@ def validate_output(answer: str, grounded: bool) -> dict:
     if not grounded and not is_not_found:
         result["warning"] = (
             "This answer may contain information not found "
-            "in the provided documents. Verify before relying on it."
+            "in the provided documents. Verify before relyi ng on it."
         )
 
     return result
@@ -232,3 +232,88 @@ def ask_with_retry(question: str,
     # Unreachable — the loop always returns or raises on the final attempt.
     # Required so the type checker sees a guaranteed exit on every code path.
     raise RuntimeError("ask_with_retry exited loop without returning")
+
+
+# ============================================================
+# COMPONENT 4 — COST TRACKER
+# ============================================================
+
+# Groq pricing for llama-3.1-8b-instant (per million tokens)
+# Update these if pricing changes or if you switch models.
+# Source: groq.com/pricing
+COST_PER_MILLION_INPUT_TOKENS  = 0.05   # USD
+COST_PER_MILLION_OUTPUT_TOKENS = 0.08   # USD
+
+# Running totals — accumulate across the session
+_session_total_cost        = 0.0
+_session_total_queries     = 0
+_session_total_input_tokens  = 0
+_session_total_output_tokens = 0
+
+
+def estimate_cost(question:       str,
+                  context:        str,
+                  answer:         str,
+                  system_prompt:  str = "") -> dict:
+    # Estimates token usage and cost for one query.
+    #
+    # WHY estimate rather than use exact token counts?
+    # Groq does not always return token usage in the response.
+    # The 1 token ≈ 4 characters rule is a reliable estimate
+    # used industry-wide for cost forecasting. For exact
+    # billing, check your Groq dashboard.
+    #
+    # Input tokens = everything sent TO the LLM:
+    #   system prompt + context + question
+    # Output tokens = everything received FROM the LLM:
+    #   the answer
+
+    global _session_total_cost
+    global _session_total_queries
+    global _session_total_input_tokens
+    global _session_total_output_tokens
+
+    # Estimate token counts
+    input_text    = system_prompt + context + question
+    input_tokens  = len(input_text) // 4
+    output_tokens = len(answer) // 4
+
+    # Calculate cost in USD
+    input_cost  = (input_tokens  / 1_000_000) * COST_PER_MILLION_INPUT_TOKENS
+    output_cost = (output_tokens / 1_000_000) * COST_PER_MILLION_OUTPUT_TOKENS
+    query_cost  = input_cost + output_cost
+
+    # Update session totals
+    _session_total_cost          += query_cost
+    _session_total_queries       += 1
+    _session_total_input_tokens  += input_tokens
+    _session_total_output_tokens += output_tokens
+
+    cost_data = {
+        "input_tokens":     input_tokens,
+        "output_tokens":    output_tokens,
+        "query_cost_usd":   f"{query_cost:.8f}", #round(query_cost, 6),
+        "session_total_usd": f"{_session_total_cost:.8f}", # round(_session_total_cost, 6),
+        "session_queries":  _session_total_queries
+    }
+
+    # Warn if a single query is unusually expensive
+    # This catches runaway context or extremely long answers
+    if query_cost > 0.01:
+        print(f"   ⚠️  High cost query: ${query_cost:.6f}")
+
+    return cost_data
+
+
+def get_session_summary() -> dict:
+    # Returns the full cost summary for the current session.
+    # Useful for printing at the end of a CLI session
+    # or exposing on a /stats API endpoint.
+    return {
+        "total_queries":       _session_total_queries,
+        "total_input_tokens":  _session_total_input_tokens,
+        "total_output_tokens": _session_total_output_tokens,
+        "total_cost_usd":      f"{_session_total_cost:.8f}", #round(_session_total_cost, 6),
+        "avg_cost_per_query":  f"{_session_total_cost / _session_total_queries:.8f}" if _session_total_queries > 0 else 0.0
+    }
+
