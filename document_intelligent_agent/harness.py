@@ -169,3 +169,66 @@ def validate_output(answer: str, grounded: bool) -> dict:
         )
 
     return result
+
+
+
+# ============================================================
+# COMPONENT 3 — RETRY LOGIC
+# ============================================================
+
+MAX_RETRIES    = 3      # maximum number of attempts
+BASE_DELAY     = 1.0    # seconds to wait after first failure
+BACKOFF_FACTOR = 2.0    # multiply delay by this after each failure
+
+# Delay sequence: 1s → 2s → 4s
+# After 3 failures we give up and return an error
+
+
+def ask_with_retry(question: str,
+                   collection_name: str = "documents") -> dict:
+    # Calls the agent with automatic retry on failure.
+    #
+    # WHY separate this from the main harness function?
+    # Retry logic is a distinct concern from validation and
+    # logging. Keeping it in its own function makes it easy
+    # to adjust retry behaviour without touching anything else.
+    # It also makes it testable in isolation.
+
+    last_error  = None
+    delay       = BASE_DELAY
+
+    for attempt in range(1, MAX_RETRIES + 1):
+
+        try:
+            if attempt > 1:
+                print(f"   Retry attempt {attempt}/{MAX_RETRIES} "
+                      f"(waiting {delay:.1f}s...)")
+                time.sleep(delay)
+                delay *= BACKOFF_FACTOR
+
+            result = ask(
+                question        = question,
+                collection_name = collection_name
+            )
+            return result
+
+        except InputGuardError:
+            # Never retry input validation failures —
+            # the question itself is the problem
+            raise
+
+        except Exception as e:
+            last_error = e
+            print(f"   Attempt {attempt} failed: {type(e).__name__}: {e}")
+
+            if attempt == MAX_RETRIES:
+                # All retries exhausted — give up
+                print(f"   All {MAX_RETRIES} attempts failed.")
+                raise RuntimeError(
+                    f"Agent failed after {MAX_RETRIES} attempts. "
+                    f"Last error: {last_error}"
+                ) from last_error
+
+    # Unreachable — the loop always returns or raises on the final attempt.
+    # Required so the type checker sees a guaranteed exit on every code path.
+    raise RuntimeError("ask_with_retry exited loop without returning")
