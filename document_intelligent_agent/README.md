@@ -231,6 +231,32 @@ curl -X POST http://localhost:8000/ask \
 }
 ```
 
+#### Option C (main.py)
+
+Start the CLI:
+
+```
+python main.py
+```
+
+Start the REST API:
+```
+python main.py --api
+```
+
+Re-ingest documents then start CLI:
+```
+python main.py --ingest
+```
+
+Re-ingest documents then start API:
+```
+python main.py --ingest --api
+
+```
+
+
+
 **Interactive API docs** — open in your browser once the server is running:
 
 ```
