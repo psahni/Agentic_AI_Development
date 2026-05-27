@@ -180,6 +180,8 @@ MAX_RETRIES    = 3      # maximum number of attempts
 BASE_DELAY     = 1.0    # seconds to wait after first failure
 BACKOFF_FACTOR = 2.0    # multiply delay by this after each failure
 
+AUTH_ERROR_MARKERS = ("401", "unauthorized", "authentication", "invalid api key", "api key")
+
 # Delay sequence: 1s → 2s → 4s
 # After 3 failures we give up and return an error
 
@@ -218,9 +220,17 @@ def ask_with_retry(question: str,
             raise
 
         except Exception as e:
+            # Never retry auth failures — the API key is wrong or missing.
+            # Retrying will not fix it and wastes time and quota.
+            error_str = str(e).lower()
+            if any(marker in error_str for marker in AUTH_ERROR_MARKERS):
+                print(f"   Auth error — not retrying: {e}")
+                raise
+
             last_error = e
             print(f"   Attempt {attempt} failed: {type(e).__name__}: {e}")
 
+            
             if attempt == MAX_RETRIES:
                 # All retries exhausted — give up
                 print(f"   All {MAX_RETRIES} attempts failed.")

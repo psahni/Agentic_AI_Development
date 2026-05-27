@@ -62,6 +62,42 @@ class RAGState(TypedDict):
     grounded:        bool         # did answer pass grounding check?
     collection_name: str          # which ChromaDB collection to search
 
+#─────────────────────────────────────────────────────────────
+
+def expand_query(question: str) -> str:
+    # Rewrites short or vague queries into more specific ones
+    # before sending to the retriever.
+    #
+    # WHY query expansion?
+    # Short queries like "total revenue?" match many chunks
+    # because the keywords appear in multiple contexts.
+    # Expanding the query adds specificity that guides the
+    # retriever toward the most relevant chunk.
+    #
+    # Example:
+    # "What is the total revenue?" (vague)
+    # → "What is the total annual revenue figure in dollars?" (specific)
+
+    if len(question.split()) > 8:
+        # Long questions are already specific enough
+        return question
+
+    expansion_prompt = f"""Rewrite this question to be more specific 
+and descriptive for document search. Add context about what kind 
+of answer is expected. Keep it as one sentence under 20 words.
+
+Original: {question}
+Rewritten:"""
+
+    response = llm.invoke([
+        SystemMessage(content="You rewrite vague questions into specific search queries. One sentence only."),
+        HumanMessage(content=expansion_prompt)
+    ])
+
+    expanded = str(response.content).strip()
+    print(f"   Query expanded: '{question}' → '{expanded}'")
+    return expanded
+
 
 # ── Node 1: Retrieve ──────────────────────────────────────
 
@@ -126,7 +162,7 @@ def context_engineer_node(state: RAGState) -> dict:
     # related but often not directly useful. Compressing
     # them preserves the signal without the token cost.
 
-    HIGH_THRESHOLD = 0.5
+    HIGH_THRESHOLD = 0.5 # If it does not return right ans you can check, and try to lower the value, it will bring more chunks into context
     context_sections = []
 
     for i, chunk in enumerate(ranked, 1):
