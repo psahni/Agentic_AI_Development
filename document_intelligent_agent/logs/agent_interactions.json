@@ -294,5 +294,39 @@
     },
     "warning": null,
     "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T10:57:50.851452Z",
+    "question": "What are the strategic priorities for 2025?",
+    "answer": "The strategic priorities for 2025 are:\n\n1. Expand the Singapore office from 8 to 25 employees.\n2. Launch the enterprise tier product by Q2.\n3. Reduce cloud costs through infrastructure optimisation.\n4. Hire a deputy CTO to address leadership concentration risk.\n\nSOURCES:\n- Passage 1: \"Leadership has identified four priorities for the coming year.\"\n- Passage 1: \"One: expand the Singapore office from 8 to 25 employees.\"\n- Passage 1: \"Two: launch the enterprise tier product by Q2.\"\n- Passage 1: \"Three: reduce cloud costs through infrastructure optimisation.\"\n- Passage 1: \"Four: hire a deputy CTO to address leadership concentration risk.\"",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 17222,
+    "cost": {
+      "input_tokens": 17,
+      "output_tokens": 160,
+      "query_cost_usd": "0.00001365",
+      "session_total_usd": "0.00001365",
+      "session_queries": 1
+    },
+    "warning": null,
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T11:12:41.798200Z",
+    "question": "What are the three risk factors for 2025?",
+    "answer": "1. Increased competition in the Singapore market from two new entrants.\n2. Rising cloud infrastructure costs projected to increase by 18 percent.\n3. Key person dependency in the engineering leadership team.\n\nSOURCES:\n- Passage 1: Risk Factors",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 1333,
+    "cost": {
+      "input_tokens": 17,
+      "output_tokens": 60,
+      "query_cost_usd": "0.00000565",
+      "session_total_usd": "0.00001930",
+      "session_queries": 2
+    },
+    "warning": null,
+    "error": ""
   }
 ]

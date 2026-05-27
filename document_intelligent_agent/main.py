@@ -109,6 +109,14 @@ def main():
     else:
         run_cli()
 
+def warmup():
+    print("Warming up embedding model...")
+    from core.embeddings import get_embedding_model
+    model = get_embedding_model()
+    # Run one dummy embedding to fully initialise
+    model.embed_query("warmup")
+    print("Model warm. Ready for traffic.")
 
 if __name__ == "__main__":
-    main()
+    warmup() # Needed for production to tackle cold start. Other sol - Combine eager loading + keepalive
+    main()   # eager loading means loading the modal at the time of import module - so server start will take some more time
