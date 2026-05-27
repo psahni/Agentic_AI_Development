@@ -317,3 +317,77 @@ def get_session_summary() -> dict:
         "avg_cost_per_query":  f"{_session_total_cost / _session_total_queries:.8f}" if _session_total_queries > 0 else 0.0
     }
 
+
+# ============================================================
+# COMPONENT 5 — STRUCTURED LOGGER
+# ============================================================
+
+LOG_FILE = LOGS_PATH / "agent_interactions.json"
+
+
+def log_interaction(question:    str,
+                    answer:      str,
+                    grounded:    bool,
+                    sources:     int,
+                    cost_data:   dict,
+                    warning:     str  = "",
+                    error:       str  = "",
+                    duration_ms: int  = 0) -> None:
+    # Appends one interaction record to the JSON log file.
+    #
+    # WHY append rather than overwrite?
+    # Every run adds to the same log file. This gives you
+    # a complete history across all sessions — not just
+    # the current one.
+    #
+    # WHY store duration_ms?
+    # Latency is a key production metric. If queries suddenly
+    # take 10 seconds instead of 2, you want to know when
+    # that started happening and for which question types.
+
+    record = {
+        "timestamp":    datetime.utcnow().isoformat() + "Z",
+        "question":     question,
+        "answer":       answer,
+        "grounded":     grounded,
+        "sources_used": sources,
+        "duration_ms":  duration_ms,
+        "cost":         cost_data,
+        "warning":      warning,
+        "error":        error
+    }
+
+    # Read existing log, append new record, write back.
+    # WHY read-then-write instead of append mode?
+    # Append mode writes raw JSON objects separated by
+    # newlines — valid NDJSON but harder to parse.
+    # Read-then-write keeps the file as a proper JSON array
+    # that any JSON parser can load in one line.
+    if LOG_FILE.exists():
+        with open(LOG_FILE, "r", encoding="utf-8") as f:
+            try:
+                existing = json.load(f)
+            except json.JSONDecodeError:
+                existing = []
+    else:
+        existing = []
+
+    existing.append(record)
+
+    with open(LOG_FILE, "w", encoding="utf-8") as f:
+        json.dump(existing, f, indent=2, ensure_ascii=False)
+
+
+def get_recent_logs(n: int = 5) -> list:
+    # Returns the n most recent log entries.
+    # Useful for a /logs endpoint in the API
+    # or a --history flag in the CLI.
+    if not LOG_FILE.exists():
+        return []
+
+    with open(LOG_FILE, "r", encoding="utf-8") as f:
+        try:
+            logs = json.load(f)
+            return logs[-n:]
+        except json.JSONDecodeError:
+            return []

@@ -1,0 +1,128 @@
+[
+  {
+    "timestamp": "2026-05-27T03:56:05.103792Z",
+    "question": "What is the total revenue?",
+    "answer": "The total revenue was 12.4 million dollars.",
+    "grounded": true,
+    "sources_used": 2,
+    "duration_ms": 1240,
+    "cost": {
+      "query_cost_usd": "0.00000688",
+      "session_total_usd": "0.00000688"
+    },
+    "warning": null,
+    "error": null
+  },
+  {
+    "timestamp": "2026-05-27T03:56:05.104429Z",
+    "question": "What are the risk factors?",
+    "answer": "Three risk factors: competition, cloud costs, leadership risk.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 980,
+    "cost": {
+      "query_cost_usd": "0.00000512",
+      "session_total_usd": "0.00001200"
+    },
+    "warning": null,
+    "error": null
+  },
+  {
+    "timestamp": "2026-05-27T03:56:05.105378Z",
+    "question": "Who is the CEO?",
+    "answer": "This information is not available in the provided documents.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 870,
+    "cost": {
+      "query_cost_usd": "0.00000320",
+      "session_total_usd": "0.00001520"
+    },
+    "warning": null,
+    "error": null
+  },
+  {
+    "timestamp": "2026-05-27T04:01:33.336051Z",
+    "question": "What is the total revenue?",
+    "answer": "The total revenue was 12.4 million dollars.",
+    "grounded": true,
+    "sources_used": 2,
+    "duration_ms": 1240,
+    "cost": {
+      "query_cost_usd": "0.00000688",
+      "session_total_usd": "0.00000688"
+    },
+    "warning": null,
+    "error": null
+  },
+  {
+    "timestamp": "2026-05-27T04:01:33.337235Z",
+    "question": "What are the risk factors?",
+    "answer": "Three risk factors: competition, cloud costs, leadership risk.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 980,
+    "cost": {
+      "query_cost_usd": "0.00000512",
+      "session_total_usd": "0.00001200"
+    },
+    "warning": null,
+    "error": null
+  },
+  {
+    "timestamp": "2026-05-27T04:01:33.338197Z",
+    "question": "Who is the CEO?",
+    "answer": "This information is not available in the provided documents.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 870,
+    "cost": {
+      "query_cost_usd": "0.00000320",
+      "session_total_usd": "0.00001520"
+    },
+    "warning": null,
+    "error": null
+  },
+  {
+    "timestamp": "2026-05-27T04:05:11.497790Z",
+    "question": "What is the total revenue?",
+    "answer": "The total revenue was 12.4 million dollars.",
+    "grounded": true,
+    "sources_used": 2,
+    "duration_ms": 1240,
+    "cost": {
+      "query_cost_usd": "0.00000688",
+      "session_total_usd": "0.00000688"
+    },
+    "warning": null,
+    "error": null
+  },
+  {
+    "timestamp": "2026-05-27T04:05:11.498886Z",
+    "question": "What are the risk factors?",
+    "answer": "Three risk factors: competition, cloud costs, leadership risk.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 980,
+    "cost": {
+      "query_cost_usd": "0.00000512",
+      "session_total_usd": "0.00001200"
+    },
+    "warning": null,
+    "error": null
+  },
+  {
+    "timestamp": "2026-05-27T04:05:11.500106Z",
+    "question": "Who is the CEO?",
+    "answer": "This information is not available in the provided documents.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 870,
+    "cost": {
+      "query_cost_usd": "0.00000320",
+      "session_total_usd": "0.00001520"
+    },
+    "warning": null,
+    "error": null
+  }
+]
