@@ -85,9 +85,8 @@ cfo_agent/memory.db-wal
 # Document Intelligence Agent
 # ============================================================
 document_intelligent_agent/chroma_db/
-document_intelligent_agent/
 !document_intelligent_agent/docs/.gitkeep
-
+chroma_db/
 # ============================================================
 # OS
 # ============================================================

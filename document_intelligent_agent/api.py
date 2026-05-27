@@ -20,7 +20,8 @@
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from core.agent import ask
+# from core.agent import ask
+from harness import harness_ask
 
 # ── App Setup ─────────────────────────────────────────────
 # title and description appear in the auto-generated
@@ -45,11 +46,14 @@ class QuestionRequest(BaseModel):
 
 
 class AnswerResponse(BaseModel):
-    question: str
-    answer:   str
-    grounded: bool
-    sources:  int
-
+    question:    str
+    answer:      str
+    grounded:    bool
+    sources:     int
+    duration_ms: int
+    cost:        dict
+    warning:     str
+    error:       str 
 
 # ── Endpoints ─────────────────────────────────────────────
 
@@ -82,7 +86,7 @@ def ask_question(request: QuestionRequest):
         )
 
     try:
-        result = ask(
+        result = harness_ask(
             question        = request.question,
             collection_name = request.collection_name
         )
