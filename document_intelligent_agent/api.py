@@ -52,8 +52,8 @@ class AnswerResponse(BaseModel):
     sources:     int
     duration_ms: int
     cost:        dict
-    warning:     str
-    error:       str 
+    warning:     str | None = None
+    error:       str | None = None
 
 # ── Endpoints ─────────────────────────────────────────────
 
@@ -91,10 +91,14 @@ def ask_question(request: QuestionRequest):
             collection_name = request.collection_name
         )
         return AnswerResponse(
-            question = result["question"],
-            answer   = result["answer"],
-            grounded = result["grounded"],
-            sources  = result["sources"]
+            question    = result["question"],
+            answer      = result["answer"],
+            grounded    = result["grounded"],
+            sources     = result["sources"],
+            duration_ms = result["duration_ms"],
+            cost        = result["cost"],
+            warning     = result["warning"],
+            error       = result["error"]
         )
 
     except Exception as e:
