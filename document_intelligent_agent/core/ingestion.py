@@ -77,6 +77,7 @@ def chunk_document(documents):
 
 
 def store_in_chroma(chunks, collection_name: str = "documents"):
+    import shutil
     # WHY collection_name?
     # ChromaDB organises vectors into collections —
     # like tables in a database. Each document collection
@@ -92,6 +93,15 @@ def store_in_chroma(chunks, collection_name: str = "documents"):
     # (for searching) AND the original text (for returning
     # to the LLM). You get back human-readable text,
     # not just numbers.
+    # WHY delete before re-creating?
+    # ChromaDB appends to existing collections.
+    # If we do not clear first, every re-ingest
+    # duplicates all chunks already in the database.
+    # Deleting and recreating guarantees a clean state.
+    if Path(CHROMA_PATH).exists():
+        shutil.rmtree(CHROMA_PATH)
+        print("   Cleared existing ChromaDB")
+
 
     print(f"\n   Embedding and storing {len(chunks)} chunks...")
 

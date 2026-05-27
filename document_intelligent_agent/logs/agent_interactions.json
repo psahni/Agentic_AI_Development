@@ -124,5 +124,175 @@
     },
     "warning": null,
     "error": null
+  },
+  {
+    "timestamp": "2026-05-27T05:15:49.200641Z",
+    "question": "What is the total revenue?",
+    "answer": "I could not find relevant information in the documents to answer this question.",
+    "grounded": false,
+    "sources_used": 0,
+    "duration_ms": 100474,
+    "cost": {
+      "input_tokens": 13,
+      "output_tokens": 19,
+      "query_cost_usd": "0.00000217",
+      "session_total_usd": "0.00000217",
+      "session_queries": 1
+    },
+    "warning": "This answer may contain information not found in the provided documents. Verify before relyi ng on it.",
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T05:25:59.552823Z",
+    "question": "\"What is the total revenue?",
+    "answer": "58 percent\n\nThis number represents the percentage of the company's total revenue that the Software division now accounts for. However, the actual total revenue is not explicitly stated in the provided context.\n\nSOURCES:\n- Passage 1: \"The Software division now accounts for 58 percent of the company's total revenue.\"\n- Passage 2: \"The Software division now accounts for 58 percent of the company's total revenue.\"",
+    "grounded": true,
+    "sources_used": 2,
+    "duration_ms": 22078,
+    "cost": {
+      "input_tokens": 13,
+      "output_tokens": 103,
+      "query_cost_usd": "0.00000889",
+      "session_total_usd": "0.00000889",
+      "session_queries": 1
+    },
+    "warning": null,
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T05:26:37.434660Z",
+    "question": "\"What are the risk factors?",
+    "answer": "The risk factors are:\n\n1. Increased competition\n2. Rising cloud infrastructure costs\n\nSOURCES:\n- Passage 1: The company faces three primary risks in 2025, including increased competition and rising cloud infrastructure costs.\n- Passage 2: The company faces three primary risks in 2025, including increased competition and rising cloud infrastructure costs.",
+    "grounded": false,
+    "sources_used": 2,
+    "duration_ms": 22250,
+    "cost": {
+      "input_tokens": 13,
+      "output_tokens": 89,
+      "query_cost_usd": "0.00000777",
+      "session_total_usd": "0.00001666",
+      "session_queries": 2
+    },
+    "warning": "This answer may contain information not found in the provided documents. Verify before relyi ng on it.",
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T05:38:51.289726Z",
+    "question": "What is the total revenue?",
+    "answer": "58 percent\n\nThis number represents the percentage of the company's total revenue that the Software division now accounts for. The exact total revenue is not specified in the provided context.\n\nSOURCES:\n- Passage 1: The Software division now accounts for 58 percent of the company's total revenue.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 22305,
+    "cost": {
+      "input_tokens": 13,
+      "output_tokens": 74,
+      "query_cost_usd": "0.00000657",
+      "session_total_usd": "0.00000657",
+      "session_queries": 1
+    },
+    "warning": null,
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T05:40:12.609517Z",
+    "question": "What are the risk factors?",
+    "answer": "Based on the provided context, the risk factors are:\n\n1. Increased competition\n2. Rising cloud infrastructure costs\n\nSOURCES:\n- Passage 1: The company faces three primary risks in 2025, including increased competition and rising cloud infrastructure costs.",
+    "grounded": false,
+    "sources_used": 1,
+    "duration_ms": 22125,
+    "cost": {
+      "input_tokens": 13,
+      "output_tokens": 64,
+      "query_cost_usd": "0.00000577",
+      "session_total_usd": "0.00001234",
+      "session_queries": 2
+    },
+    "warning": "This answer may contain information not found in the provided documents. Verify before relyi ng on it.",
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T05:40:53.303142Z",
+    "question": "Who is the CEO?",
+    "answer": "I could not find relevant information in the documents to answer this question.",
+    "grounded": false,
+    "sources_used": 0,
+    "duration_ms": 22,
+    "cost": {
+      "input_tokens": 10,
+      "output_tokens": 19,
+      "query_cost_usd": "0.00000202",
+      "session_total_usd": "0.00001436",
+      "session_queries": 3
+    },
+    "warning": "This answer may contain information not found in the provided documents. Verify before relyi ng on it.",
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T05:41:26.081354Z",
+    "question": "What is the total revenue?",
+    "answer": "58 percent\n\nThis number represents the percentage of the company's total revenue that the Software division now accounts for. The exact total revenue is not specified in the provided context.\n\nSOURCES:\n- Passage 1: The Software division now accounts for 58 percent of the company's total revenue.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 22227,
+    "cost": {
+      "input_tokens": 13,
+      "output_tokens": 74,
+      "query_cost_usd": "0.00000657",
+      "session_total_usd": "0.00002093",
+      "session_queries": 4
+    },
+    "warning": null,
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T05:44:17.168647Z",
+    "question": "What is the total revenue?",
+    "answer": "58 percent\n\nThis number represents the percentage of the company's total revenue that the Software division now accounts for. The exact total revenue is not specified in the provided context.\n\nSOURCES:\n- Passage 1: The Software division now accounts for 58 percent of the company's total revenue.",
+    "grounded": true,
+    "sources_used": 1,
+    "duration_ms": 21689,
+    "cost": {
+      "input_tokens": 13,
+      "output_tokens": 74,
+      "query_cost_usd": "0.00000657",
+      "session_total_usd": "0.00002750",
+      "session_queries": 5
+    },
+    "warning": null,
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T05:54:56.754893Z",
+    "question": "What is the total annual revenue figure of ACME Corporation in dollars?",
+    "answer": "12.4 million dollars\n\nThis figure represents the total revenue of ACME Corporation in 2024, as stated in the Executive Summary of the Annual Financial Report 2024. The passage specifically mentions that the company delivered strong results in 2024 with total revenue of 12.4 million dollars, representing 23 percent growth over the previous year.\n\nSOURCES:\n- Passage 1: Executive Summary",
+    "grounded": true,
+    "sources_used": 2,
+    "duration_ms": 117679,
+    "cost": {
+      "input_tokens": 24,
+      "output_tokens": 96,
+      "query_cost_usd": "0.00000888",
+      "session_total_usd": "0.00000888",
+      "session_queries": 1
+    },
+    "warning": null,
+    "error": ""
+  },
+  {
+    "timestamp": "2026-05-27T06:13:45.035652Z",
+    "question": "What is the total annual revenue figure of ACME Corporation in dollars?",
+    "answer": "12.4 million dollars\n\nThis figure represents the total revenue of ACME Corporation in 2024, as stated in the Executive Summary of the Annual Financial Report 2024. The passage specifically mentions that the company delivered strong results in 2024 with total revenue of 12.4 million dollars, representing 23 percent growth over the previous year.\n\nSOURCES:\n- Passage 1: Executive Summary",
+    "grounded": true,
+    "sources_used": 2,
+    "duration_ms": 21816,
+    "cost": {
+      "input_tokens": 24,
+      "output_tokens": 96,
+      "query_cost_usd": "0.00000888",
+      "session_total_usd": "0.00001776",
+      "session_queries": 2
+    },
+    "warning": null,
+    "error": ""
   }
 ]

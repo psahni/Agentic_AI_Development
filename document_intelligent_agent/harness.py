@@ -391,3 +391,134 @@ def get_recent_logs(n: int = 5) -> list:
             return logs[-n:]
         except json.JSONDecodeError:
             return []
+
+# ============================================================
+# COMPONENT 6 — HARNESS WRAPPER
+# ============================================================
+
+def harness_ask(question:        str,
+                collection_name: str = "documents") -> dict:
+    # The single entry point for the entire production agent.
+    #
+    # Orchestrates all five components in order:
+    # 1. Input Guard      — validate the question
+    # 2. Retry Logic      — call agent with automatic retry
+    # 3. Output Validator — check the answer quality
+    # 4. Cost Tracker     — estimate tokens and cost
+    # 5. Structured Logger — write everything to disk
+    #
+    # Returns a clean dict the caller can use directly.
+    # Errors are caught here — callers never see raw exceptions.
+
+    start_time = time.time()
+    warning    = None
+    error      = None
+
+    # ── Step 1: Input Guard ───────────────────────────────────
+    try:
+        clean_question = validate_input(question)
+    except InputGuardError as e:
+        # Input failed validation — log and return immediately.
+        # No point calling the agent with a bad question.
+        duration_ms = int((time.time() - start_time) * 1000)
+        log_interaction(
+            question    = question,
+            answer      = "",
+            grounded    = False,
+            sources     = 0,
+            cost_data   = {"query_cost_usd": "0.00000000",
+                           "session_total_usd": "0.00000000"},
+            warning     = "",
+            error       = str(e),
+            duration_ms = duration_ms
+        )
+        return {
+            "question": question,
+            "answer":   str(e),
+            "grounded": False,
+            "sources":  0,
+            "warning":  None,
+            "error":    str(e),
+            "cost":     {"query_cost_usd": "0.00000000"},
+            "duration_ms": duration_ms
+        }
+
+    # ── Step 2: Call Agent with Retry ─────────────────────────
+    try:
+        result = ask_with_retry(
+            question        = clean_question,
+            collection_name = collection_name
+        )
+    except RuntimeError as e:
+        # All retries exhausted — log the failure and return
+        # a safe fallback message instead of crashing.
+        duration_ms = int((time.time() - start_time) * 1000)
+        error_msg   = "The agent is temporarily unavailable. Please try again shortly."
+        log_interaction(
+            question    = clean_question,
+            answer      = "",
+            grounded    = False,
+            sources     = 0,
+            cost_data   = {"query_cost_usd": "0.00000000",
+                           "session_total_usd": "0.00000000"},
+            warning     = "",
+            error       = str(e),
+            duration_ms = duration_ms
+        )
+        return {
+            "question":    clean_question,
+            "answer":      error_msg,
+            "grounded":    False,
+            "sources":     0,
+            "warning":     None,
+            "error":       str(e),
+            "cost":        {"query_cost_usd": "0.00000000"},
+            "duration_ms": duration_ms
+        }
+
+    # ── Step 3: Output Validator ──────────────────────────────
+    validated = validate_output(
+        answer   = result["answer"],
+        grounded = result["grounded"]
+    )
+    warning = validated["warning"]
+
+    # ── Step 4: Cost Tracker ──────────────────────────────────
+    # Use engineered_context if available, fall back to
+    # raw context. engineered_context is richer and gives
+    # a more accurate token estimate.
+    context_for_cost = result.get("engineered_context", "") or \
+                       result.get("context", "")
+
+    cost_data = estimate_cost(
+        question      = clean_question,
+        context       = context_for_cost,
+        answer        = validated["answer"],
+        system_prompt = "You are a document analyst."
+    )
+
+    # ── Step 5: Structured Logger ─────────────────────────────
+    duration_ms = int((time.time() - start_time) * 1000)
+
+    log_interaction(
+        question    = clean_question,
+        answer      = validated["answer"],
+        grounded    = result["grounded"],
+        sources     = result["sources"],
+        cost_data   = cost_data,
+        warning     = warning,
+        error       = "",
+        duration_ms = duration_ms
+    )
+
+    # ── Return clean result ───────────────────────────────────
+    return {
+        "question":    clean_question,
+        "answer":      validated["answer"],
+        "grounded":    result["grounded"],
+        "sources":     result["sources"],
+        "warning":     warning,
+        "cost":        cost_data,
+        "duration_ms": duration_ms,
+        "error":       None
+    }
